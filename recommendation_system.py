@@ -13,10 +13,12 @@ class RecommendationSystem:
             raise Exception("uknown distance score")
         self.distance_score = distance_score
         self.factorized_matrix: pd.DataFrame = None
+        self.users_purchase_data: pd.DataFrame = None
         self.is_ascending_sorting: bool = False
 
-    def train(self, factorized_matrix: pd.DataFrame) -> None:
+    def train(self, factorized_matrix: pd.DataFrame, users_purchase_data: pd.DataFrame) -> None:
         self.factorized_matrix = factorized_matrix
+        self.users_purchase_data = users_purchase_data
         if self.distance_score == "euclidean":
             self.is_ascending_sorting = True
 
@@ -26,10 +28,15 @@ class RecommendationSystem:
 
         nearest_neighbors: pd.Series = self.factorized_matrix.loc[user_id]
         nearest_neighbors.sort_values(ascending=self.is_ascending_sorting, inplace=True)
-        nearest_neighbors = nearest_neighbors.head(self.nearest_neighbors_number)
+        nearest_neighbors = nearest_neighbors.head(self.nearest_neighbors_number).index.values
+
+        nearest_neighbors_purchases = set(self.user_purchase_data[self.user_purchase_data["customer_id"].isin([nearest_neighbors])]["category"])
+        customer_purchases = set(self.users_purchase_data[self.users_purchase_data == user_id]["category"])
+        return list(nearest_neighbors_purchases.difference(customer_purchases))
+
 
     def _is_trained(self) -> bool:
-        if self.factorized_matrix:
+        if self.factorized_matrix and self.users_purchase_data:
             return True
 
         return False
