@@ -30,13 +30,13 @@ class RecommendationSystem:
         nearest_neighbors.sort_values(ascending=self.is_ascending_sorting, inplace=True)
         nearest_neighbors = nearest_neighbors.head(self.nearest_neighbors_number).index.values
 
-        nearest_neighbors_purchases = set(self.user_purchase_data[self.user_purchase_data["customer_id"].isin([nearest_neighbors])]["category"])
+        nearest_neighbors_purchases = set(self.users_purchase_data[self.users_purchase_data["customer_id"].isin(nearest_neighbors)]["category"])
         customer_purchases = set(self.users_purchase_data[self.users_purchase_data == user_id]["category"])
         return list(nearest_neighbors_purchases.difference(customer_purchases))
 
 
     def _is_trained(self) -> bool:
-        if self.factorized_matrix and self.users_purchase_data:
+        if (self.factorized_matrix is not None) or (self.users_purchase_data is not None):
             return True
 
         return False
