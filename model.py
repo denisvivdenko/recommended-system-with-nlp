@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy.sparse import csr_matrix
 from tqdm import tqdm
 import nlu
 import pickle
@@ -71,9 +72,13 @@ user_to_user_sim_matrix = pd.DataFrame(
 )
 print(user_to_user_sim_matrix.head())
 
+print("###TO SPARSE MATRIX\n")
+sparse_factorized_matrix = csr_matrix(user_to_user_sim_matrix)
+print(type(sparse_factorized_matrix))
+
 print("###MODEL\n")
 model = RecommendationSystem(nearest_neighbors_number=3, items_number=10)
-model.train(user_to_user_sim_matrix, df)
+model.train(sparse_factorized_matrix, user_to_user_sim_matrix.columns, df)
 print(model.predict(50081964))
 
 print("###SAVING MODEL TO model.pkl")
